@@ -1,7 +1,6 @@
 import google.generativeai as genai
 import streamlit as st
 
-
 # Replace with your Gemini API key
 GEMINI_API_KEY = "AIzaSyCDgJM3jwy86gYUezKkU9AZmtjtxlafd94"
 
@@ -34,23 +33,29 @@ def generate_exam(subject):
 
 # Streamlit app
 def main():
-    st.title("Oasis of wisdom")
+    st.title("Oasis of Wisdom")
 
     # Initialize session state variables
     if "selected_subject" not in st.session_state:
         st.session_state.selected_subject = None
     if "roadmap" not in st.session_state:
         st.session_state.roadmap = []
+    if "previous_dream_job" not in st.session_state:
+        st.session_state.previous_dream_job = ""
 
     # User input: Dream job
     dream_job = st.text_input("Enter your dream job:")
 
+    # Reset roadmap if dream job changes
+    if dream_job and dream_job != st.session_state.previous_dream_job:
+        st.session_state.roadmap = generate_course_roadmap(dream_job)
+        st.session_state.previous_dream_job = dream_job
+        st.session_state.selected_subject = None  # Reset selected subject
+        st.rerun()
+
     # If no subject is selected, show the roadmap
     if st.session_state.selected_subject is None:
-        if dream_job:
-            if not st.session_state.roadmap:  # Generate roadmap only once
-                st.session_state.roadmap = generate_course_roadmap(dream_job)
-
+        if dream_job and st.session_state.roadmap:
             st.write(f"### Course Roadmap for {dream_job}:")
             for subject in st.session_state.roadmap:
                 if st.button(subject):  # Clicking a subject selects it
